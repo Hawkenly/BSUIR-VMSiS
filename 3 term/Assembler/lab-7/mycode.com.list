@@ -1,0 +1,289 @@
+EMU8086 GENERATED LISTING. MACHINE CODE <- SOURCE.
+ 
+mycode.com -- emu8086 assembler version: 4.05  
+ 
+[ 21.12.2023  --  02:12:05 ] 
+ 
+===================================================================================================
+[LINE]     LOC: MACHINE CODE                          SOURCE
+===================================================================================================
+ 
+[   1]        :                                       .model tiny
+[   2]    0100:                                       .code
+[   3]        :                                       
+[   4]        :                                       org 100h
+[   5]        :                                       
+[   6]    0100:                                       main:
+[   7]        :                                       
+[   8]    0100:                                       fillFilePathLength:
+[   9]    0100: BE 80 00                              mov si,80h
+[  10]    0103: 33 C9                                 	xor cx, cx
+[  11]    0105: 26 8A 0C                              	mov cl, es:[si]
+[  12]        :                                       	
+[  13]        :                                       	
+[  14]    0108:                                       	checkEmptyCmd:
+[  15]    0108: 80 F9 00                              	cmp cl, 0
+[  16]    010B: 75 0A                                 	jne fillFilePath
+[  17]    010D: B4 09 BA 24 03 CD 21                  	printMessage emptyCmdErrorMessage
+[  18]    0114: E9 8D 00                              jmp exit
+[  19]        :                                       	
+[  20]        :                                       	
+[  21]    0117:                                       	fillFilePath:
+[  22]    0117: FE C9                                 	    dec cl
+[  23]    0119: 26 88 0E E4 02                        	mov es:filePathLength, cl
+[  24]    011E: BE 82 00                              	    mov si,82h
+[  25]    0121: BF 58 02                              	    mov di, offset filePath
+[  26]    0124: FE C1                                 	    inc cl
+[  27]    0126:                                       read:
+[  28]    0126: AC                                    	lodsb
+[  29]    0127: 88 05                                 	mov [di],al
+[  30]    0129: 47                                    	inc di
+[  31]    012A: E2 FA                                 	loop read
+[  32]        :                                       	
+[  33]        :                                       
+[  34]    012C:                                       already_read:
+[  35]    012C: BF 58 02                              mov di,offset filePath
+[  36]        :                                       
+[  37]    012F: 8A 0E E4 02                           mov cl, filePathLength
+[  38]    0133: 03 F9                                 add di,cx
+[  39]    0135: C6 05 00                              mov byte ptr [di],0
+[  40]        :                                       
+[  41]    0138: E8 6A 00                              call changeMemoryBlock
+[  42]        :                                       
+[  43]        :                                       
+[  44]    013B: E8 85 00                              call openFile
+[  45]    013E: 73 09                                 jnc openFileSuccessfully
+[  46]    0140: B4 09 BA 3B 03 CD 21                  printMessage openFileErrorMessage
+[  47]    0147: EB 5B                                 jmp exit
+[  48]    0149:                                       openFileSuccessfully:
+[  49]        :                                       
+[  50]    0149:                                       runProgramsLoop:
+[  51]        :                                       
+[  52]    0149:                                       checkSeparator:
+[  53]        :                                       
+[  54]    0149: B1 01                                 mov cl, 1
+[  55]    014B: BA 0C 03                              mov dx, offset bufferChar
+[  56]    014E: E8 BE 00                              call readFile
+[  57]    0151:                                       checkEOF:
+[  58]    0151: 80 3E 0C 03 00                        cmp bufferChar,00h
+[  59]    0156: 74 49                                 je endMain
+[  60]    0158:                                       checkEnter:
+[  61]    0158: 80 3E 0C 03 0D                        cmp bufferChar, 13
+[  62]    015D: 74 0A                                 je readProgramPath
+[  63]    015F: A0 E8 02                              mov al, programPathLength
+[  64]    0162: FE C0                                 inc al
+[  65]    0164: A2 E8 02                              mov programPathLength, al
+[  66]    0167: EB E0                                 jmp runProgramsLoop
+[  67]        :                                       
+[  68]    0169:                                       readProgramPath:
+[  69]        :                                       
+[  70]    0169: E8 86 00                              call setPointer
+[  71]    016C: 8A 0E E8 02                           mov cl, programPathLength
+[  72]    0170: BA E9 02                              mov dx, offset programPath
+[  73]    0173: E8 99 00                              call readFile
+[  74]    0176: E8 AD 00                              call runProgram
+[  75]    0179: 73 09                                 jnc runProgramSuccessfully
+[  76]        :                                       
+[  77]    017B:                                       runProgramNotSuccessfully:
+[  78]    017B: B4 09 BA 86 03 CD 21                  printMessage runProgramErrorMessage
+[  79]    0182: EB 1D                                 jmp  endMain
+[  80]        :                                       
+[  81]    0184:                                       runProgramSuccessfully:
+[  82]    0184: B4 09 BA C8 03 CD 21                  printMessage runProgramSuccessMessage
+[  83]        :                                       
+[  84]    018B: A0 E8 02                              mov al, programPathLength
+[  85]    018E: 00 06 D8 03                           add byte ptr stringBeginIndex, al
+[  86]    0192: 83 06 D8 03 02                        add stringBeginIndex, 2
+[  87]    0197: E8 58 00                              call setPointer
+[  88]        :                                       
+[  89]        :                                       
+[  90]    019A: C6 06 E8 02 00                        mov byte ptr programPathLength, 0
+[  91]    019F: EB A8                                 jmp runProgramsLoop
+[  92]        :                                       
+[  93]        :                                       
+[  94]        :                                       
+[  95]    01A1:                                       endMain:
+[  96]    01A1: E8 33 00                              call closeFile
+[  97]    01A4:                                       exit:
+[  98]    01A4: C3                                    ret
+[  99]        :                                       
+[ 100]        :                                       ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+[ 101]        :                                       
+[ 102]        :                                       printMessage macro string
+[ 103]        :                                       mov ah, 9
+[ 104]        :                                       lea dx, string
+[ 105]        :                                       int 21h
+[ 106]        :                                       endm
+[ 107]        :                                       
+[ 108]    01A5:                                       changeMemoryBlock proc
+[ 109]    01A5: B4 4A                                 mov ah, 4Ah
+[ 110]    01A7: BB 50 00                              mov bx, (programSize/16+1)+(100h/16+1)+(100h/16+1)
+[ 111]    01AA: CD 21                                 	int 21h
+[ 112]    01AC: 73 09                                 	jnc changeMemorySuccessfully
+[ 113]    01AE: B4 09 BA 0D 03 CD 21                  printMessage changeMemoryErrorMessage
+[ 114]    01B5: EB ED                                 jmp exit
+[ 115]        :                                       
+[ 116]    01B7:                                       changeMemorySuccessfully:
+[ 117]        :                                       
+[ 118]    01B7: 8C C8                                 mov ax,cs
+[ 119]    01B9: A3 DA 02                              mov word ptr epb+4,ax
+[ 120]    01BC: A3 DE 02                              mov word ptr epb+8,ax
+[ 121]    01BF: A3 E2 02                              mov word ptr epb+12,ax
+[ 122]        :                                       
+[ 123]    01C2: C3                                    ret
+[ 124]        :                                       changeMemoryBlock endp
+[ 125]        :                                       
+[ 126]        :                                       openFileFunction macro
+[ 127]        :                                       mov ah, 3dh
+[ 128]        :                                       mov al, 00h
+[ 129]        :                                       mov dx, offset filePath
+[ 130]        :                                       int 21h
+[ 131]        :                                       endm
+[ 132]        :                                       
+[ 133]    01C3:                                       openFile proc
+[ 134]    01C3: B4 09 BA 9B 03 CD 21                  printMessage openFileMessage
+[ 135]    01CA: B4 3D B0 00 BA 58 02 CD 21            openFileFunction
+[ 136]    01D3: A3 E5 02                              mov fileID, ax
+[ 137]    01D6: C3                                    ret
+[ 138]        :                                       openFile endp
+[ 139]        :                                       
+[ 140]    01D7:                                       closeFile proc
+[ 141]    01D7: B4 09 BA A8 03 CD 21                  printMessage closeFileMessage
+[ 142]        :                                       
+[ 143]    01DE: B4 3E                                 mov ah, 3eh
+[ 144]    01E0: 8B 1E E5 02                           mov bx, fileID
+[ 145]    01E4: CD 21                                 int 21h
+[ 146]    01E6: 73 09                                 jnc closeFileSuccessfully
+[ 147]    01E8: B4 09 BA 4E 03 CD 21                  printMessage closeFileErrorMessage
+[ 148]    01EF: EB B3                                 jmp exit
+[ 149]        :                                       
+[ 150]    01F1:                                       closeFileSuccessfully:
+[ 151]    01F1: C3                                    ret
+[ 152]        :                                       closeFile endp
+[ 153]        :                                       
+[ 154]    01F2:                                       setPointer proc
+[ 155]        :                                       ;si = offset shift
+[ 156]    01F2: B4 42                                 mov ah, 42h
+[ 157]    01F4: B0 00                                 mov al, 00h
+[ 158]    01F6: 8B 1E E5 02                           mov bx, fileID
+[ 159]    01FA: B9 00 00                              mov cx, 0           ;cx:dx
+[ 160]    01FD: 8B 16 D8 03                           mov dx, stringBeginIndex
+[ 161]    0201: CD 21                                 int 21h
+[ 162]    0203: 73 09                                 jnc setPointerSuccessfully
+[ 163]        :                                       
+[ 164]    0205: B4 09 BA 62 03 CD 21                  printMessage movePointerErrorMessage
+[ 165]    020C: EB 93                                 jmp endMain
+[ 166]        :                                       
+[ 167]    020E:                                       setPointerSuccessfully:
+[ 168]    020E: C3                                    ret
+[ 169]        :                                       setPointer endp
+[ 170]        :                                       
+[ 171]    020F:                                       readFile proc
+[ 172]        :                                       
+[ 173]    020F: B4 3F                                 mov ah, 3fh
+[ 174]    0211: 8B 1E E5 02                           mov bx, fileID
+[ 175]    0215: 32 ED                                 xor ch, ch
+[ 176]    0217: CD 21                                 int 21h
+[ 177]    0219: 73 0A                                 jnc readFileSuccessfully
+[ 178]        :                                       
+[ 179]    021B: B4 09 BA 78 03 CD 21                  printMessage readErrorMessage
+[ 180]    0222: E9 7C FF                              jmp endMain
+[ 181]        :                                       
+[ 182]    0225:                                       readFileSuccessfully:
+[ 183]    0225: C3                                    ret
+[ 184]        :                                       readFile endp
+[ 185]        :                                       
+[ 186]    0226:                                       runProgram proc
+[ 187]    0226:                                       printRunProgramMessage:
+[ 188]    0226: B4 09 BA B8 03 CD 21                  printMessage runProgramMessage
+[ 189]    022D: BE E9 02                              mov si, offset programPath
+[ 190]    0230: 33 C0                                 xor ax, ax
+[ 191]    0232: A0 E8 02                              mov al, programPathLength
+[ 192]    0235: 03 F0                                 add si, ax
+[ 193]    0237: C6 04 24                              mov byte ptr [si], '$'
+[ 194]    023A: B4 09 BA E9 02 CD 21                  printMessage programPath
+[ 195]    0241: B4 09 BA D5 03 CD 21                  printMessage newLine
+[ 196]    0248: C6 04 00                              mov byte ptr [si], 0
+[ 197]        :                                       
+[ 198]        :                                       ;   checkExcessCharInProgramPath:
+[ 199]        :                                       ;       cmp programPathLength, 0
+[ 200]        :                                       ;       je runProgramNotSuccessfully
+[ 201]        :                                       
+[ 202]    024B:                                       tryRunProgram:
+[ 203]    024B: B4 4B                                 	mov ah, 4bh
+[ 204]    024D: B0 00                                 	mov al, 0				
+[ 205]    024F: BB D6 02                              	mov bx, offset epb
+[ 206]    0252: BA E9 02                              	mov dx, offset programPath
+[ 207]    0255: CD 21                                 int 21h
+[ 208]        :                                       	
+[ 209]    0257: C3                                    ret
+[ 210]        :                                       runProgram endp
+[ 211]        :                                       
+[ 212]        :                                       
+[ 213]    0258: 00 00 00 00 00 00 00 00 00 00 00 00   filePath            db 126 dup(0)
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00                   
+[ 214]        :                                       
+[ 215]    02D6: 00 00                                 epb     dw 0
+[ 216]    02D8: 80 00 00 00                           dw 0080h,0
+[ 217]    02DC: 5C 00 00 00 6C 00 00 00               		dw 005Ch,0,006Ch,0
+[ 218]        :                                       
+[ 219]        :                                       
+[ 220]    02E4: 00                                    filePathLength      db  0
+[ 221]    02E5: 00 00                                 fileID              dw  0
+[ 222]    02E7: 00                                    fileEnd             db  0
+[ 223]        :                                       
+[ 224]    02E8: 00                                    programPathLength   db  0
+[ 225]    02E9: 00 00 00 00 00 00 00 00 00 00 00 00   programPath         db  35 dup(0)
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00    
+[ 226]    030C: 00                                    bufferChar          db  0
+[ 227]        :                                       
+[ 228]        :                                       
+[ 229]    030D: 43 68 61 6E 67 65 20 6D 65 6D 6F 72   changeMemoryErrorMessage      db  'Change memory error.', 13, 10, '$'
+                79 20 65 72 72 6F 72 2E 0D 0A 24    
+[ 230]    0324: 45 72 72 6F 72 2E 20 43 6D 64 20 69   emptyCmdErrorMessage          db  'Error. Cmd is empty.', 13, 10, '$'
+                73 20 65 6D 70 74 79 2E 0D 0A 24    
+[ 231]    033B: 4F 70 65 6E 20 66 69 6C 65 20 65 72   openFileErrorMessage          db  'Open file error.', 13, 10, '$'
+                72 6F 72 2E 0D 0A 24                
+[ 232]    034E: 43 6C 6F 73 65 20 66 69 6C 65 20 65   closeFileErrorMessage         db  'Close file error.', 13, 10, '$'
+                72 72 6F 72 2E 0D 0A 24             
+[ 233]    0362: 4D 6F 76 65 20 70 6F 69 6E 74 65 72   movePointerErrorMessage       db  'Move pointer error.', 13, 10, '$'
+                20 65 72 72 6F 72 2E 0D 0A 24       
+[ 234]    0378: 52 65 61 64 20 65 72 72 6F 72 2E 0D   readErrorMessage              db  'Read error.', 13, 10, '$'
+                0A 24                               
+[ 235]    0386: 52 75 6E 20 70 72 6F 67 72 61 6D 20   runProgramErrorMessage        db  'Run program error.', 13, 10, '$'
+                65 72 72 6F 72 2E 0D 0A 24          
+[ 236]        :                                       
+[ 237]    039B: 4F 70 65 6E 20 66 69 6C 65 2E 0D 0A   openFileMessage               db  'Open file.', 13, 10, '$'
+                24                                  
+[ 238]    03A8: 0D 0A 43 6C 6F 73 65 20 66 69 6C 65   closeFileMessage              db  13, 10, 'Close file.', 13, 10, '$'
+                2E 0D 0A 24                         
+[ 239]    03B8: 0D 0A 52 75 6E 20 70 72 6F 67 72 61   runProgramMessage             db  13, 10, 'Run program: ', '$'
+                6D 3A 20 24                         
+[ 240]    03C8: 0D 0A 53 75 63 63 65 73 73 2E 0D 0A   runProgramSuccessMessage      db  13, 10, 'Success.', 13, 10, '$'
+                24                                  
+[ 241]    03D5: 0D 0A 24                              newLine                       db  13, 10, '$'
+[ 242]        :                                       
+[ 243]    03D8: 00 00 00 00                           stringBeginIndex    dw  2 dup(0)
+[ 244]        :                                       
+[ 245]    03DC:                                       programSize = $ - main
+[ 246]        :                                       
+[ 247]        :                                       end main
+[ 248]        :                                       
+ 
+===================================================================================================
+ 
+
+
+
+
+===================================================================================================

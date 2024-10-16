@@ -1,0 +1,258 @@
+EMU8086 GENERATED LISTING. MACHINE CODE <- SOURCE.
+ 
+mycode.exe -- emu8086 assembler version: 4.05  
+ 
+[ 20.12.2023  --  20:49:04 ] 
+ 
+===================================================================================================
+[LINE]     LOC: MACHINE CODE                          SOURCE
+===================================================================================================
+ 
+[   1]        :                                       .model small
+[   2]        :                                       .stack 100h
+[   3]        :                                       
+[   4]        :                                       .data
+[   5]    0100: 49 6E 70 75 74 20 63 68 69 73 6C 6F   mes0 db "Input chislo:",0Dh,0Ah,'$'
+                3A 0D 0A 24                         
+[   6]    0110: 49 6E 70 75 74 20 61 20 6D 61 73 73   mes1 db "Input a massive:",0Dh,0Ah,'$'
+                69 76 65 3A 0D 0A 24                
+[   7]    0123: 59 6F 75 72 20 6D 61 73 73 69 76 65   mes2 db "Your massive:",0Dh,0Ah,'$'
+                3A 0D 0A 24                         
+[   8]    0133: 41 76 65 72 61 67 65 20 76 61 6C 75   mes3 db "Average value(Integer part): ",'$'
+                65 28 49 6E 74 65 67 65 72 20 70 61 
+                72 74 29 3A 20 24                   
+[   9]    0151: 41 76 65 72 61 67 65 20 76 61 6C 75   mes4 db "Average value(Fractional part): ",'$'
+                65 28 46 72 61 63 74 69 6F 6E 61 6C 
+                20 70 61 72 74 29 3A 20 24          
+[  10]    0172: 0D 0A 24                              CrLf db 0Dh,0Ah,'$'
+[  11]    0175: 00 00 00 00 00 00 00 00 00 00 00 00   mas dw Len DUP (?)
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                00 00 00 00 00 00 00 00 00 00 00 00 
+                                                    
+[  12]    01B1: 43 00                                 averageInt dw 67
+[  13]    01B3: 43 00                                 averageFract dw 67
+[  14]    01B5: 00 00                                 fl dw ?
+[  15]        :                                       Len EQU 30
+[  16]        :                                       
+[  17]        :                                       .code
+[  18]        :                                       
+[  19]        :                                       Output macro mes
+[  20]        :                                       push ax
+[  21]        :                                       mov dx,offset mes
+[  22]        :                                       mov ah,09h
+[  23]        :                                       int 21h
+[  24]        :                                       pop ax
+[  25]        :                                       endm
+[  26]        :                                       
+[  27]    01C0:                                       ReadChar proc
+[  28]    01C0: B4 01                                 mov     ah,01h
+[  29]    01C2: CD 21                                 int     21h
+[  30]    01C4: C3                                    ret
+[  31]        :                                       ReadChar endp
+[  32]        :                                       
+[  33]    01C5:                                       ReadInteger proc
+[  34]    01C5: 51                                    push    cx
+[  35]    01C6: 53                                    push    bx
+[  36]    01C7: 52                                    push    dx
+[  37]    01C8: C7 06 B5 00 00 00                     mov     fl,0
+[  38]    01CE: 33 C9                                 xor     cx, cx
+[  39]    01D0: BB 0A 00                              mov     bx, 10
+[  40]    01D3: E8 EA FF                              call    ReadChar
+[  41]        :                                       
+[  42]    01D6: 3C 2D                                 cmp     al,'-'
+[  43]    01D8: 74 02                                 je      nnn
+[  44]    01DA: EB 09                                 jmp     nn
+[  45]    01DC:                                       nnn:
+[  46]    01DC: C7 06 B5 00 01 00                     mov     fl,1
+[  47]        :                                       
+[  48]    01E2:                                       read:
+[  49]        :                                       
+[  50]    01E2: E8 DB FF                              call    ReadChar
+[  51]    01E5: 3C 0D                                 nn: cmp     al, 13
+[  52]    01E7: 74 0E                                 je      done
+[  53]        :                                       
+[  54]    01E9: 2C 30                                 sub     al, '0'
+[  55]    01EB: 32 E4                                 xor     ah, ah
+[  56]    01ED: 33 D2                                 xor     dx, dx
+[  57]    01EF: 91                                    xchg    cx, ax
+[  58]    01F0: F7 E3                                 mul     bx
+[  59]    01F2: 03 C1                                 add     ax, cx
+[  60]    01F4: 91                                    xchg    ax, cx
+[  61]    01F5: EB EB                                 jmp     read
+[  62]    01F7:                                       done:
+[  63]    01F7: 91                                    xchg    ax, cx
+[  64]    01F8: 83 3E B5 00 01                        cmp     fl,1
+[  65]    01FD: 74 02                                 je      eee
+[  66]    01FF: EB 02                                 jmp     ee
+[  67]    0201:                                       eee:
+[  68]    0201: F7 D8                                 neg     ax
+[  69]    0203:                                       ee:
+[  70]    0203: 50 BA 72 00 B4 09 CD 21 58            Output CrLf
+[  71]    020C: 5A                                    pop     dx
+[  72]    020D: 5B                                    pop     bx
+[  73]    020E: 59                                    pop     cx
+[  74]    020F: C3                                    ret
+[  75]        :                                       ReadInteger endp
+[  76]        :                                       
+[  77]    0210:                                       WriteChar proc
+[  78]    0210: 50                                    push    ax
+[  79]    0211: 52                                    push    dx
+[  80]    0212: 8A D0                                 mov     dl, al
+[  81]    0214: B4 02                                 mov     ah, 2
+[  82]    0216: CD 21                                 int     21h
+[  83]    0218: 5A                                    pop     dx
+[  84]    0219: 58                                    pop     ax
+[  85]    021A: C3                                    ret
+[  86]        :                                       WriteChar endp
+[  87]        :                                       
+[  88]    021B:                                       WriteInteger proc near
+[  89]    021B: 50                                    push    ax
+[  90]    021C: 51                                    push    cx
+[  91]    021D: 53                                    push    bx
+[  92]    021E: 52                                    push    dx
+[  93]    021F: 33 C9                                 xor     cx, cx
+[  94]    0221: BB 0A 00                              mov     bx, 10
+[  95]        :                                       
+[  96]    0224: 3D 00 00                              cmp     ax,0
+[  97]    0227: 7C 02                                 jl      ddd
+[  98]    0229: EB 0A                                 jmp     divl
+[  99]        :                                       
+[ 100]    022B:                                       ddd:
+[ 101]    022B: 50                                    push    ax
+[ 102]    022C: B2 2D                                 mov     dl, '-'
+[ 103]    022E: B4 02                                 mov     ah, 2
+[ 104]    0230: CD 21                                 int     21h
+[ 105]    0232: 58                                    pop     ax
+[ 106]    0233: F7 D8                                 neg     ax
+[ 107]        :                                       
+[ 108]        :                                       
+[ 109]    0235:                                       divl:
+[ 110]    0235: 33 D2                                 xor     dx, dx
+[ 111]    0237: F7 FB                                 idiv    bx
+[ 112]    0239: 52                                    push    dx
+[ 113]    023A: 41                                    inc     cx
+[ 114]    023B: 3D 00 00                              cmp     ax,0
+[ 115]    023E: 7F F5                                 jg     divl
+[ 116]        :                                       
+[ 117]        :                                       
+[ 118]    0240:                                       popl:
+[ 119]    0240: 58                                    pop     ax
+[ 120]    0241: 04 30                                 add     al, '0'
+[ 121]        :                                       
+[ 122]    0243: E8 CA FF                              call    WriteChar
+[ 123]    0246: E2 F8                                 loop    popl
+[ 124]        :                                       
+[ 125]    0248: 5A                                    pop     dx
+[ 126]    0249: 5B                                    pop     bx
+[ 127]    024A: 59                                    pop     cx
+[ 128]    024B: 58                                    pop     ax
+[ 129]    024C: C3                                    ret
+[ 130]        :                                       WriteInteger endp
+[ 131]        :                                       
+[ 132]        :                                       
+[ 133]        :                                       
+[ 134]    024D:                                       start:
+[ 135]        :                                       
+[ 136]    024D: B8 10 00                              mov ax,@data
+[ 137]    0250: 8E D8                                 mov ds,ax
+[ 138]        :                                       
+[ 139]    0252: 50 BA 10 00 B4 09 CD 21 58            Output mes1
+[ 140]    025B: BF 00 00                              mov di,0
+[ 141]    025E: B9 1E 00                              mov cx,Len
+[ 142]    0261:                                       input:
+[ 143]    0261: E8 61 FF                              call ReadInteger
+[ 144]    0264: 89 45 75                              mov mas[di],ax
+[ 145]    0267: 83 C7 02                              add di,2
+[ 146]    026A: E2 F5                                 loop input
+[ 147]        :                                       
+[ 148]    026C: 33 C0                                 xor ax,ax
+[ 149]    026E: 33 FF                                 xor di,di
+[ 150]    0270: B9 1E 00                              mov cx,Len
+[ 151]    0273:                                       count:
+[ 152]    0273: 03 45 75                              add ax,mas[di]
+[ 153]    0276: 83 C7 02                              add di,2
+[ 154]    0279: E2 F8                                 loop count
+[ 155]        :                                       
+[ 156]    027B: BB 1E 00                              mov bx,Len
+[ 157]    027E: 3D 00 00                              cmp ax,0
+[ 158]    0281: 7C 02                                 jl d
+[ 159]    0283: EB 08                                 jmp dd
+[ 160]    0285:                                       d:
+[ 161]    0285: C7 06 B5 00 01 00                     mov fl,1
+[ 162]    028B: F7 D8                                 neg ax
+[ 163]        :                                       
+[ 164]    028D:                                       dd:
+[ 165]    028D: 33 D2                                 xor dx,dx
+[ 166]    028F: F7 F3                                 div bx
+[ 167]        :                                       
+[ 168]    0291: 83 3E B5 00 01                        cmp fl,1
+[ 169]    0296: 74 02                                 je z
+[ 170]    0298: EB 02                                 jmp zz
+[ 171]    029A:                                       z:
+[ 172]    029A: F7 D8                                 neg ax
+[ 173]    029C:                                       zz:
+[ 174]    029C: A3 B1 00                              mov averageInt,ax
+[ 175]    029F: 89 16 B3 00                           mov averageFract,dx
+[ 176]        :                                       
+[ 177]    02A3: A1 B1 00                              mov ax,averageInt
+[ 178]    02A6: 50 BA 33 00 B4 09 CD 21 58            Output mes3
+[ 179]    02AF: E8 69 FF                              call WriteInteger
+[ 180]    02B2: 50 BA 72 00 B4 09 CD 21 58            Output CrLf
+[ 181]    02BB: A1 B3 00                              mov ax, averageFract
+[ 182]    02BE: 50 BA 51 00 B4 09 CD 21 58            Output mes4
+[ 183]    02C7: E8 51 FF                              call WriteInteger
+[ 184]    02CA: 50 BA 72 00 B4 09 CD 21 58            Output CrLf
+[ 185]        :                                       
+[ 186]    02D3: B8 00 4C                              mov ax,4C00h
+[ 187]    02D6: CD 21                                 int 21h
+[ 188]        :                                       
+[ 189]        :                                       end start
+[ 190]        :                                       
+[ 191]        :                                       
+ 
+===================================================================================================
+ 
+EXE HEADER - bytes from 0000 to 01FF inclusive.
+
+0000: 4D      -   exe signature (M)
+0001: 5A      -   exe signature (Z)
+0002: D8      -   bytes on last page (l.byte)
+0003: 00      -   bytes on last page (h.byte)
+0004: 03      -   512 byte pages in file (l.byte)
+0005: 00      -   512 byte pages in file (h.byte)
+0006: 01      -   relocations (l.byte)
+0007: 00      -   relocations (h.byte)
+0008: 20      -   paragraphs in header (l.byte)
+0009: 00      -   paragraphs in header (h.byte)
+000A: 00      -   minimum memory (l.byte)
+000B: 00      -   minimum memory (h.byte)
+000C: FF      -   maximum memory (l.byte)
+000D: FF      -   maximum memory (h.byte)
+000E: 00      -   SS - stack segment (l.byte)
+000F: 00      -   SS - stack segment (h.byte)
+0010: 00      -   SP - stack pointer (l.byte)
+0011: 01      -   SP - stack pointer (h.byte)
+0012: F3      -   check sum (l.byte)
+0013: BC      -   check sum (h.byte)
+0014: 8D      -   IP - instruction pointer (l.byte)
+0015: 00      -   IP - instruction pointer (h.byte)
+0016: 1C      -   CS - code segment (l.byte)
+0017: 00      -   CS - code segment (h.byte)
+0018: 1E      -   relocation table adress (l.byte)
+0019: 00      -   relocation table adress (h.byte)
+001A: 00      -   overlay number (l.byte)
+001B: 00      -   overlay number (h.byte)
+001C: 01      -   signature (l.byte)
+001D: 00      -   signature (h.byte)
+001E: 8E      -   relocation table - offset inside segment (l.byte)
+001F: 00      -   relocation table - offset inside segment (h.byte)
+0020: 1C      -   relocation table - segment anchor (l.byte)
+0021: 00      -   relocation table - segment anchor (h.byte)
+0022 to 01FF  -   reserved relocation area  (00) 
+
+
+
+
+===================================================================================================

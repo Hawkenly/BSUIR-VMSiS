@@ -1,0 +1,102 @@
+EMU8086 GENERATED LISTING. MACHINE CODE <- SOURCE.
+ 
+mycode.com -- emu8086 assembler version: 4.05  
+ 
+[ 22.12.2023  --  14:06:11 ] 
+ 
+===================================================================================================
+[LINE]     LOC: MACHINE CODE                          SOURCE
+===================================================================================================
+ 
+[   1]        :                                       .model tiny
+[   2]    0100:                                       .code
+[   3]        :                                       org     100h
+[   4]        :                                       
+[   5]    0100:                                       start:
+[   6]    0100: EB 68                                 jmp load
+[   7]    0102: 00 00 00 00                           old_int_1Ch dd ?          ;old int
+[   8]        :                                       
+[   9]    0106:                                       decode  proc
+[  10]        :                                       ;unpack BCD
+[  11]    0106: B4 00                                 mov ah,0
+[  12]    0108: D1 C8 D1 C8 D1 C8 D1 C8               ror ax,4
+[  13]    0110: D0 EC D0 EC D0 EC D0 EC               shr ah,4
+[  14]    0118: 80 C4 30                              add ah,30h   ;to ascii
+[  15]    011B: 04 30                                 add al,30h
+[  16]        :                                       
+[  17]    011D: 26 88 05                              mov es:[di],al
+[  18]    0120: 26 C6 45 01 0F                        mov es:[di+1],0Fh
+[  19]    0125: 26 88 65 02                           mov es:[di+2],ah
+[  20]    0129: 26 C6 45 03 0F                        mov es:[di+3],0Fh
+[  21]    012E: 83 C7 04                              add di,4
+[  22]    0131: C3                                    ret
+[  23]        :                                       
+[  24]        :                                       decode  endp
+[  25]        :                                       
+[  26]    0132:                                       clock   proc
+[  27]        :                                       
+[  28]    0132: 06                                    push es
+[  29]    0133: 60                                    pusha
+[  30]        :                                       
+[  31]    0134: 68 00 B8                              push 0B800h
+[  32]    0137: 07                                    pop es
+[  33]        :                                       
+[  34]    0138: B4 02                                 mov     ah,  02h         ;get current time BCD-code
+[  35]    013A: CD 1A                                 int     1Ah              ;ch - hours, cl - minutes, dh - seconds
+[  36]        :                                       
+[  37]    013C: 81 C7 D0 07                           add di, 80*2*12+40*2
+[  38]        :                                       
+[  39]    0140: 8A C5                                 mov al,ch
+[  40]    0142: E8 C1 FF                              call decode              ;show hours
+[  41]        :                                       
+[  42]    0145: 26 C6 05 3A                           mov es:[di],":"
+[  43]    0149: 26 C6 45 01 0F                        mov es:[di+1],0Fh
+[  44]    014E: 83 C7 02                              add di,2
+[  45]        :                                       
+[  46]    0151: 8A C1                                 mov al,cl
+[  47]    0153: E8 B0 FF                              call decode              ;show minutes
+[  48]        :                                       
+[  49]    0156: 26 C6 05 3A                           mov es:[di],":"
+[  50]    015A: 26 C6 45 01 0F                        mov es:[di+1],0Fh
+[  51]    015F: 83 C7 02                              add di,2
+[  52]        :                                       
+[  53]    0162: 8A C6                                 mov al,dh
+[  54]    0164: E8 9F FF                              call decode              ;show seconds
+[  55]        :                                       
+[  56]    0167: 61                                    popa
+[  57]    0168: 07                                    pop es
+[  58]        :                                       
+[  59]    0169: CF                                    iret
+[  60]        :                                       clock   endp
+[  61]        :                                       
+[  62]    016A:                                       load:
+[  63]        :                                       
+[  64]    016A: B8 03 00                              mov ax,3
+[  65]    016D: CD 10                                 int 10h
+[  66]        :                                       
+[  67]    016F: B4 35                                 mov ah,35h                        ;get old int (es:bx)
+[  68]    0171: B0 1C                                 mov al,1Ch
+[  69]    0173: CD 21                                 int 21h
+[  70]        :                                       
+[  71]    0175: 89 1E 02 01                           mov word ptr old_int_1Ch,bx       ;shift
+[  72]    0179: 8C 06 04 01                           mov word ptr old_int_1Ch+2,es     ;segment
+[  73]        :                                       
+[  74]    017D: B4 25                                 mov ah,25h                        ;set new int
+[  75]    017F: B0 1C                                 mov al,1Ch
+[  76]    0181: BA 32 01                              mov dx,offset clock               ;shift
+[  77]    0184: CD 21                                 int 21h
+[  78]        :                                       
+[  79]    0186: B8 00 31                              mov ax,3100h                      ;make rezident
+[  80]    0189: BA 17 00                              mov dx,(load - start + 10Fh)/16   ;memory
+[  81]    018C: CD 21                                 int 21h
+[  82]        :                                       
+[  83]        :                                       end start
+[  84]        :                                       
+ 
+===================================================================================================
+ 
+
+
+
+
+===================================================================================================

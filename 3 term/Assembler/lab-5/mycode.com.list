@@ -1,0 +1,348 @@
+EMU8086 GENERATED LISTING. MACHINE CODE <- SOURCE.
+ 
+mycode.com -- emu8086 assembler version: 4.05  
+ 
+[ 21.12.2023  --  04:24:15 ] 
+ 
+===================================================================================================
+[LINE]     LOC: MACHINE CODE                          SOURCE
+===================================================================================================
+ 
+[   1]        :                                       ;.model small
+[   2]        :                                       .model tiny
+[   3]    0100:                                       .code
+[   4]        :                                       .org 100h
+[   5]        :                                       ;.stack 100h
+[   6]        :                                       ;.data
+[   7]        :                                       
+[   8]    0100: E9 21 01                              jmp start
+[   9]        :                                       
+[  10]        :                                       macro Output message
+[  11]        :                                       push ax
+[  12]        :                                       push dx
+[  13]        :                                       xor dx,dx
+[  14]        :                                       xor ax,ax
+[  15]        :                                       lea dx, message
+[  16]        :                                       mov ah, 09h
+[  17]        :                                       int 21h
+[  18]        :                                       pop dx
+[  19]        :                                       pop ax
+[  20]        :                                       endm
+[  21]        :                                       
+[  22]        :                                       
+[  23]    0103:                                       openFile proc
+[  24]    0103: B4 3D                                 mov ah,3Dh
+[  25]    0105: B0 00                                 mov al,00h
+[  26]    0107: BA 40 03                              lea dx,path
+[  27]    010A: CD 21                                 int 21h
+[  28]    010C: C3                                    ret
+[  29]        :                                       endp openFile
+[  30]        :                                       
+[  31]    010D:                                       setPointer proc
+[  32]    010D: B4 42                                 mov ah,42h
+[  33]    010F: 8B 1E D7 04                           mov bx,handler
+[  34]    0113: B0 00                                 mov al,00h
+[  35]    0115: B9 00 00                              mov cx,0
+[  36]    0118: 8B 16 D5 04                           mov dx,start_string
+[  37]    011C: CD 21                                 int 21h
+[  38]    011E: C3                                    ret
+[  39]        :                                       endp setPointer
+[  40]        :                                       
+[  41]    011F:                                       readFile proc
+[  42]    011F: B4 3F                                 mov ah,3Fh
+[  43]    0121: 8B 1E D7 04                           mov bx,handler
+[  44]    0125: B9 01 00                              mov cx,1
+[  45]    0128: BA D0 04                              lea dx,buffer
+[  46]    012B: CD 21                                 int 21h
+[  47]    012D: C3                                    ret
+[  48]        :                                       endp readFile
+[  49]        :                                       
+[  50]    012E:                                       get_cmd proc
+[  51]    012E: BE 80 00                              mov si, 80h
+[  52]        :                                       
+[  53]    0131: 33 C9                                 xor cx, cx
+[  54]    0133: 26 8A 0C                              mov cl, es:[si]
+[  55]        :                                       
+[  56]    0136: 80 F9 00                              cmp cl, 0
+[  57]    0139: 74 2D                                 jz  stop
+[  58]        :                                       
+[  59]    013B: BE 82 00                              mov si,82h
+[  60]    013E: BF 40 03                              mov di,offset path
+[  61]    0141:                                       next_char:
+[  62]    0141: 26 8A 04                              mov al, es:[si]
+[  63]        :                                       
+[  64]    0144: 3C 20                                 cmp al,' '
+[  65]    0146: 74 0A                                 je Symb
+[  66]        :                                       
+[  67]    0148: 3C 0D                                 cmp al,0Dh
+[  68]    014A: 74 1C                                 je stop
+[  69]        :                                       
+[  70]    014C: 88 05                                 mov [di],al
+[  71]    014E: 46                                    inc si
+[  72]    014F: 47                                    inc di
+[  73]    0150: E2 EF                                 loop    next_char
+[  74]        :                                       
+[  75]    0152:                                       Symb:
+[  76]    0152: C6 05 00                              mov [di],0
+[  77]    0155: 33 DB                                 xor bx,bx
+[  78]    0157: BB 08 04                              lea bx,symbols
+[  79]    015A: 46                                    inc si
+[  80]    015B:                                       next_char1:
+[  81]    015B: 26 8A 04                              mov al,es:[si]
+[  82]        :                                       
+[  83]    015E: 3C 0D                                 cmp al, 0Dh
+[  84]    0160: 74 06                                 je stop
+[  85]        :                                       
+[  86]    0162: 88 07                                 mov [bx],al
+[  87]    0164: 43                                    inc bx
+[  88]    0165: 46                                    inc si
+[  89]    0166: EB F3                                 jmp next_char1
+[  90]    0168:                                       stop:
+[  91]    0168: C3                                    ret
+[  92]        :                                       endp get_cmd
+[  93]        :                                       
+[  94]        :                                       
+[  95]    0169:                                       work_with_file  proc
+[  96]    0169: 50                                    push ax
+[  97]    016A: 53                                    push bx
+[  98]    016B: 51                                    push cx
+[  99]    016C: 52                                    push dx
+[ 100]    016D: 57                                    push di
+[ 101]    016E: 56                                    push si
+[ 102]    016F: 33 C0                                 xor ax,ax
+[ 103]    0171: 33 C9                                 xor cx,cx
+[ 104]    0173: 33 D2                                 xor dx,dx
+[ 105]        :                                       
+[ 106]    0175: E8 8B FF                              call openFile
+[ 107]    0178: 73 02                                 jnc  openFileSuccessfully
+[ 108]    017A: EB 75                                 jmp not_open
+[ 109]        :                                       
+[ 110]    017C:                                       openFileSuccessfully:
+[ 111]    017C: A3 D7 04                              mov handler,ax
+[ 112]        :                                       
+[ 113]    017F:                                       big_cycle:
+[ 114]    017F: BF 08 04                              lea di,symbols
+[ 115]    0182: 8B 0E D5 04                           mov cx,start_string
+[ 116]    0186: 03 0E D3 04                           add cx,counter_bytes
+[ 117]    018A: 89 0E D5 04                           mov start_string,cx
+[ 118]    018E: E8 7C FF                              call setPointer
+[ 119]    0191:                                       cycle:
+[ 120]    0191: E8 8B FF                              call readFile
+[ 121]    0194: 72 53                                 jc exit
+[ 122]        :                                       
+[ 123]    0196: FF 06 D3 04                           inc counter_bytes
+[ 124]        :                                       
+[ 125]    019A: 80 3E D0 04 00                        cmp buffer,00h
+[ 126]    019F: 74 48                                 je eof
+[ 127]        :                                       
+[ 128]    01A1: 80 3E D0 04 0D                        cmp buffer,0Dh
+[ 129]    01A6: 74 1F                                 je next_string
+[ 130]        :                                       
+[ 131]    01A8: BE D0 04                              mov si,offset buffer
+[ 132]    01AB: 8A 05                                 mov al,[di]
+[ 133]    01AD: 3A 04                                 cmp al,[si]
+[ 134]    01AF: 74 02                                 je next_symbol
+[ 135]        :                                       
+[ 136]    01B1: EB DE                                 jmp cycle
+[ 137]        :                                       
+[ 138]    01B3:                                       next_symbol:
+[ 139]    01B3: 47                                    inc di
+[ 140]    01B4: 80 3D 24                              cmp [di],'$'
+[ 141]    01B7: 74 15                                 je plus
+[ 142]    01B9: 47                                    inc di
+[ 143]    01BA: C7 06 D3 04 00 00                     mov counter_bytes,0
+[ 144]    01C0: E8 4A FF                              call setPointer
+[ 145]    01C3: 72 24                                 jc exit
+[ 146]    01C5: EB CA                                 jmp cycle
+[ 147]    01C7:                                       next_string:
+[ 148]    01C7: 83 06 D3 04 01                        add counter_bytes,1
+[ 149]    01CC: EB B1                                 jmp big_cycle
+[ 150]    01CE:                                       plus:
+[ 151]    01CE: FF 06 D1 04                           inc counter_strings
+[ 152]    01D2:                                       to_end:
+[ 153]    01D2: E8 4A FF                              call readFile
+[ 154]    01D5: FF 06 D3 04                           inc counter_bytes
+[ 155]    01D9: 80 3E D0 04 0D                        cmp buffer,0Dh
+[ 156]    01DE: 74 E7                                 je  next_string
+[ 157]    01E0: 80 3E D0 04 00                        cmp buffer, 00h
+[ 158]    01E5: 74 02                                 je eof
+[ 159]    01E7: EB E9                                 jmp to_end
+[ 160]        :                                       
+[ 161]    01E9:                                       exit:
+[ 162]    01E9:                                       eof:
+[ 163]    01E9: 8B 1E D7 04                           mov bx,handler
+[ 164]    01ED: B4 3E                                 mov ah,3Eh
+[ 165]    01EF: CD 21                                 int 21h
+[ 166]    01F1:                                       not_open:
+[ 167]    01F1: 5E                                    pop si
+[ 168]    01F2: 5F                                    pop di
+[ 169]    01F3: 5A                                    pop dx
+[ 170]    01F4: 59                                    pop cx
+[ 171]    01F5: 5B                                    pop bx
+[ 172]    01F6: 58                                    pop ax
+[ 173]    01F7: C3                                    ret
+[ 174]        :                                       work_with_file endp
+[ 175]        :                                       
+[ 176]    01F8:                                       WriteChar proc
+[ 177]    01F8: 50                                    push    ax
+[ 178]    01F9: 52                                    push    dx
+[ 179]    01FA: 8A D0                                 mov     dl, al
+[ 180]    01FC: B4 02                                 mov     ah, 02h
+[ 181]    01FE: CD 21                                 int     21h
+[ 182]    0200: 5A                                    pop     dx
+[ 183]    0201: 58                                    pop     ax
+[ 184]    0202: C3                                    ret
+[ 185]        :                                       WriteChar endp
+[ 186]        :                                       
+[ 187]    0203:                                       WriteInteger proc
+[ 188]    0203: 50                                    push    ax
+[ 189]    0204: 51                                    push    cx
+[ 190]    0205: 53                                    push    bx
+[ 191]    0206: 52                                    push    dx
+[ 192]    0207: 33 C9                                 xor     cx, cx
+[ 193]    0209: BB 0A 00                              mov     bx, 10
+[ 194]        :                                       
+[ 195]        :                                       
+[ 196]    020C:                                       divl:
+[ 197]    020C: 33 D2                                 xor     dx, dx
+[ 198]    020E: F7 FB                                 idiv    bx
+[ 199]    0210: 52                                    push    dx
+[ 200]    0211: 41                                    inc     cx
+[ 201]    0212: 3D 00 00                              cmp     ax,0
+[ 202]    0215: 7F F5                                 jg     divl
+[ 203]        :                                       
+[ 204]        :                                       
+[ 205]    0217:                                       popl:
+[ 206]    0217: 58                                    pop     ax
+[ 207]    0218: 04 30                                 add     al, '0'
+[ 208]        :                                       
+[ 209]    021A: E8 DB FF                              call    WriteChar
+[ 210]    021D: E2 F8                                 loop    popl
+[ 211]        :                                       
+[ 212]    021F: 5A                                    pop     dx
+[ 213]    0220: 5B                                    pop     bx
+[ 214]    0221: 59                                    pop     cx
+[ 215]    0222: 58                                    pop     ax
+[ 216]    0223: C3                                    ret
+[ 217]        :                                       WriteInteger endp
+[ 218]        :                                       
+[ 219]        :                                       
+[ 220]    0224:                                       start:
+[ 221]        :                                       
+[ 222]    0224: E8 07 FF                              call get_cmd
+[ 223]    0227: 80 F9 00                              cmp cl,0
+[ 224]    022A: 74 79                                 jz no_param
+[ 225]        :                                       
+[ 226]    022C: E8 3A FF                              call work_with_file
+[ 227]    022F: 73 03 E9 82 00                        jc errorOpenFile
+[ 228]        :                                       
+[ 229]    0234: 50 52 33 D2 33 C0 BA E4 02 B4 09 CD   Output msg1
+                21 5A 58                            
+[ 230]    0243: 50 52 33 D2 33 C0 BA 40 03 B4 09 CD   Output path
+                21 5A 58                            
+[ 231]    0252: 50 52 33 D2 33 C0 BA 3D 03 B4 09 CD   Output CrLf
+                21 5A 58                            
+[ 232]    0261: 50 52 33 D2 33 C0 BA F8 02 B4 09 CD   Output msg2
+                21 5A 58                            
+[ 233]    0270: 50 52 33 D2 33 C0 BA 08 04 B4 09 CD   Output symbols
+                21 5A 58                            
+[ 234]    027F: 50 52 33 D2 33 C0 BA 3D 03 B4 09 CD   Output CrLF
+                21 5A 58                            
+[ 235]    028E: 50 52 33 D2 33 C0 BA 0C 03 B4 09 CD   Output msg3
+                21 5A 58                            
+[ 236]        :                                       
+[ 237]    029D: A1 D1 04                              mov ax,counter_strings
+[ 238]    02A0: E8 60 FF                              call WriteInteger
+[ 239]        :                                       
+[ 240]    02A3: EB 20                                 jmp gg
+[ 241]        :                                       
+[ 242]    02A5:                                       no_param:
+[ 243]    02A5: 50 52 33 D2 33 C0 BA C6 02 B4 09 CD   Output msg
+                21 5A 58                            
+[ 244]    02B4: EB 0F                                 jmp gg
+[ 245]        :                                       
+[ 246]    02B6:                                       errorOpenFile:
+[ 247]    02B6: 50 52 33 D2 33 C0 BA 2A 03 B4 09 CD   Output errorOpenFileMessage
+                21 5A 58                            
+[ 248]        :                                       
+[ 249]    02C5:                                       gg:
+[ 250]    02C5: C3                                    ret
+[ 251]        :                                       
+[ 252]        :                                       
+[ 253]    02C6: 6E 6F 20 63 6F 6D 6D 61 6E 64 20 6C   msg db 'no command line parameters!', 0Dh,0Ah,'$'
+                69 6E 65 20 70 61 72 61 6D 65 74 65 
+                72 73 21 0D 0A 24                   
+[ 254]        :                                       
+[ 255]    02E4: 50 61 74 68 20 74 6F 20 74 68 65 20   msg1 db "Path to the file:",0Dh,0Ah,'$'
+                66 69 6C 65 3A 0D 0A 24             
+[ 256]    02F8: 53 79 6D 62 6F 6C 73 20 74 6F 20 63   msg2 db "Symbols to check:",0Dh,0Ah,'$'
+                68 65 63 6B 3A 0D 0A 24             
+[ 257]    030C: 41 6D 6F 75 6E 74 20 6F 66 20 73 75   msg3 db "Amount of suitable strings:",0Dh,0Ah,'$'
+                69 74 61 62 6C 65 20 73 74 72 69 6E 
+                67 73 3A 0D 0A 24                   
+[ 258]    032A: 4F 70 65 6E 20 66 69 6C 65 20 65 72   errorOpenFileMessage db "Open file error.",0Dh,0Ah,'$'
+                72 6F 72 2E 0D 0A 24                
+[ 259]    033D: 0D 0A 24                              CrLf db 0Dh,0Ah,'$'
+[ 260]    0340: 24 24 24 24 24 24 24 24 24 24 24 24   path db 200 DUP ('$')
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24             
+[ 261]        :                                       ;path db "C:\IIINo.txt",0,'$'
+[ 262]        :                                       ;symbols db 'h a','$'
+[ 263]    0408: 24 24 24 24 24 24 24 24 24 24 24 24   symbols db 200 DUP('$')
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24 24 24 24 24 
+                24 24 24 24 24 24 24 24             
+[ 264]    04D0: 00                                    buffer db 0
+[ 265]    04D1: 00 00                                 counter_strings dw 0
+[ 266]    04D3: 00 00                                 counter_bytes dw 0
+[ 267]    04D5: 00 00                                 start_string dw 0
+[ 268]    04D7: 00 00                                 handler dw ?
+[ 269]        :                                       
+[ 270]        :                                       
+[ 271]        :                                       
+[ 272]        :                                       
+[ 273]        :                                       end start
+[ 274]        :                                       
+[ 275]        :                                       
+[ 276]        :                                       
+[ 277]        :                                       
+[ 278]        :                                       
+[ 279]        :                                       
+[ 280]        :                                       
+[ 281]        :                                       
+[ 282]        :                                       
+ 
+===================================================================================================
+ 
+
+
+
+
+===================================================================================================
