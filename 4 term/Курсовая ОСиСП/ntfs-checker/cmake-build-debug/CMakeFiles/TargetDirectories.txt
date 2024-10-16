@@ -1,0 +1,3 @@
+D:/Kursovaya OSiSP/ntfs-checker/cmake-build-debug/CMakeFiles/ntfs_checker.dir
+D:/Kursovaya OSiSP/ntfs-checker/cmake-build-debug/CMakeFiles/edit_cache.dir
+D:/Kursovaya OSiSP/ntfs-checker/cmake-build-debug/CMakeFiles/rebuild_cache.dir

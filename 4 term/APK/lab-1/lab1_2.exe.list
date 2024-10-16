@@ -1,0 +1,130 @@
+EMU8086 GENERATED LISTING. MACHINE CODE <- SOURCE.
+ 
+lab1_2.exe -- emu8086 assembler version: 4.05  
+ 
+[ 29.02.2024  --  08:53:32 ] 
+ 
+===================================================================================================
+[LINE]     LOC: MACHINE CODE                          SOURCE
+===================================================================================================
+ 
+[   1]        :                                       .model small
+[   2]        :                                       .stack 100h
+[   3]        :                                       
+[   4]        :                                       .data
+[   5]        :                                       
+[   6]    0100: 57 72 69 74 65 20 65 72 72 6F 72 21   writeError db "Write error!",0Dh,0Ah,'$'
+                0D 0A 24                            
+[   7]    010F: 52 65 61 64 20 65 72 72 6F 72 21 0D   readError db "Read error!",0Dh,0Ah,'$'
+                0A 24                               
+[   8]        :                                       
+[   9]        :                                       .code
+[  10]        :                                       
+[  11]    0120: EB 47                                 jmp start
+[  12]        :                                       
+[  13]    0122:                                       init proc
+[  14]    0122: 33 C0                                 xor ax,ax
+[  15]    0124: B0 A3                                 mov al,10100011b    ;connection params: speed and amount of bits (101 - 2400, 11 -8)
+[  16]    0126: BA 00 00                              mov dx,0            ;port num - COM1
+[  17]    0129: CD 14                                 int 14h
+[  18]    012B: C3                                    ret
+[  19]        :                                       init endp
+[  20]        :                                       
+[  21]    012C:                                       checkToWrite proc
+[  22]    012C: B0 41                                 mov al,'A'          ;symbol
+[  23]    012E: B4 01                                 mov ah,1            ;write
+[  24]    0130: BA 00 00                              mov dx,0            ;COM1
+[  25]    0133: CD 14                                 int 14h             ;return LSD+symbol in ax
+[  26]    0135: A8 80                                 test al,80h         ;like AND but changes flag ZF
+[  27]    0137: 75 01                                 jnz errorWrite         ;no FIFO
+[  28]    0139: C3                                    ret
+[  29]        :                                       checkToWrite endp
+[  30]        :                                       
+[  31]    013A:                                       errorWrite proc
+[  32]    013A: B4 09                                 mov ah,9
+[  33]    013C: BA 00 00                              mov dx,offset writeError
+[  34]    013F: 83 C2 02                              add dx,2
+[  35]    0142: CD 21                                 int 21h
+[  36]    0144: C3                                    ret
+[  37]        :                                       errorWrite endp
+[  38]        :                                       
+[  39]    0145:                                       checkToRead proc
+[  40]    0145: B4 02                                 mov ah,2
+[  41]    0147: BA 01 00                              mov dx,1         ;COM2
+[  42]    014A: CD 14                                 int 14h          ;return LSR+symbol in ax
+[  43]    014C: A8 80                                 test al,80h
+[  44]    014E: 75 01                                 jnz errorRead
+[  45]    0150: C3                                    ret
+[  46]        :                                       checkToRead endp
+[  47]        :                                       
+[  48]    0151:                                       errorRead proc
+[  49]    0151: B4 09                                 mov ah,9
+[  50]    0153: BA 0F 00                              mov dx,offset readError
+[  51]    0156: 83 C2 02                              add dx,2
+[  52]    0159: CD 21                                 int 21h
+[  53]    015B: C3                                    ret
+[  54]        :                                       errorRead endp
+[  55]        :                                       
+[  56]    015C:                                       Output proc
+[  57]    015C: B4 02                                 mov ah,02h
+[  58]    015E: 8A D0                                 mov dl,al
+[  59]    0160: CD 21                                 int 21h
+[  60]    0162: C3                                    ret
+[  61]        :                                       Output endp
+[  62]        :                                       
+[  63]    0163:                                       Exit proc
+[  64]    0163: B8 00 4C                              mov ax,4C00h
+[  65]    0166: CD 21                                 int 21h
+[  66]    0168: C3                                    ret
+[  67]        :                                       Exit endp
+[  68]        :                                       
+[  69]    0169:                                       start:
+[  70]    0169: E8 B6 FF                              call init
+[  71]    016C: E8 BD FF                              call checkToWrite
+[  72]    016F: E8 D3 FF                              call checkToRead
+[  73]    0172: E8 E7 FF                              call Output
+[  74]    0175: E8 EB FF                              call Exit
+[  75]        :                                       
+[  76]        :                                       end start
+[  77]        :                                       
+ 
+===================================================================================================
+ 
+EXE HEADER - bytes from 0000 to 01FF inclusive.
+
+0000: 4D      -   exe signature (M)
+0001: 5A      -   exe signature (Z)
+0002: 78      -   bytes on last page (l.byte)
+0003: 01      -   bytes on last page (h.byte)
+0004: 02      -   512 byte pages in file (l.byte)
+0005: 00      -   512 byte pages in file (h.byte)
+0006: 00      -   relocations (l.byte)
+0007: 00      -   relocations (h.byte)
+0008: 20      -   paragraphs in header (l.byte)
+0009: 00      -   paragraphs in header (h.byte)
+000A: 00      -   minimum memory (l.byte)
+000B: 00      -   minimum memory (h.byte)
+000C: FF      -   maximum memory (l.byte)
+000D: FF      -   maximum memory (h.byte)
+000E: 00      -   SS - stack segment (l.byte)
+000F: 00      -   SS - stack segment (h.byte)
+0010: 00      -   SP - stack pointer (l.byte)
+0011: 01      -   SP - stack pointer (h.byte)
+0012: A0      -   check sum (l.byte)
+0013: 5F      -   check sum (h.byte)
+0014: 49      -   IP - instruction pointer (l.byte)
+0015: 00      -   IP - instruction pointer (h.byte)
+0016: 12      -   CS - code segment (l.byte)
+0017: 00      -   CS - code segment (h.byte)
+0018: 1E      -   relocation table adress (l.byte)
+0019: 00      -   relocation table adress (h.byte)
+001A: 00      -   overlay number (l.byte)
+001B: 00      -   overlay number (h.byte)
+001C: 01      -   signature (l.byte)
+001D: 00      -   signature (h.byte)
+001E to 01FF  -   reserved relocation area  (00) 
+
+
+
+
+===================================================================================================

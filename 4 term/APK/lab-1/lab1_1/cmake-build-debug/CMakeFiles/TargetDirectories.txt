@@ -1,0 +1,3 @@
+D:/APK-labs/lab1/lab1_1/cmake-build-debug/CMakeFiles/lab1_1.dir
+D:/APK-labs/lab1/lab1_1/cmake-build-debug/CMakeFiles/edit_cache.dir
+D:/APK-labs/lab1/lab1_1/cmake-build-debug/CMakeFiles/rebuild_cache.dir
