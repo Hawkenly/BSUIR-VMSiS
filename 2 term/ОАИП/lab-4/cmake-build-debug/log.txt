@@ -1,0 +1,7 @@
+ 1.Program was launched. 10:28:44 pm
+ 2.The remainder of the division was found. 10:28:47 pm
+ 3.List was initilised. 10:29:24 pm
+ 4.The 2 event was added 10:29:40 pm
+ 5.The 3 event was added 10:29:58 pm
+ 6.List was printed. 10:30:09 pm
+ 7.List was successfully sorted. 10:30:31 pm

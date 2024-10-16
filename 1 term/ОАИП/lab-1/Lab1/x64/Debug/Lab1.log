@@ -1,3 +1,0 @@
-﻿  Main.c
-C:\Проекты VS\Lab1\№1\Lab1\Main.c(5,1): warning C4305: инициализация: усечение из "double" в "float"
-  Lab1.vcxproj -> C:\Проекты VS\Lab1\№1\x64\Debug\Lab1.exe

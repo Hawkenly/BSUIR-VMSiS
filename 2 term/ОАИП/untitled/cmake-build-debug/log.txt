@@ -1,0 +1,5 @@
+Program was launched. 03:00:00 am
+Program was launched. 03:00:00 am
+Program was launched. 05:43:20 pm
+List was initilised. 05:43:32 pm
+List was printed. 05:43:37 pm
