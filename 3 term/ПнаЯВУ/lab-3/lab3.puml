@@ -1,0 +1,82 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+
+Engine <|-- Car
+Color <|-- Car
+Body <|--Car
+
+class Engine {
+protected:
+    type tp;
+    double volume;
+    int power;
+public:
+    Engine():tp(),volume(0.0),power(0){};
+    explicit Engine(type,double,int);
+
+    type GetTp();
+    void SetTp(const char*);
+
+    double GetVolume() const;
+    void SetVolume(double);
+
+    int GetPower() const;
+    void SetPower(int);
+
+   // void Show();
+
+    ~Engine();
+}
+
+class Color {
+protected:
+    char color[255];
+public:
+    Color():color{"Неизвестно"}{};
+    explicit Color(const char*);
+
+    char* GetColor();
+    void SetColor(const char*);
+
+   // void Show();
+
+    ~Color();
+
+}
+
+class Body {
+protected:
+    int number_of_doors;
+    int size[3]={};
+public:
+    Body():number_of_doors(0),size{}{};
+    explicit Body(int ,int,int, int);
+
+    int GetNumberOfDoors() const ;
+    void SetNumberOfDoors(int);
+
+    int* GetSize() ;
+    void SetSize(int,int,int);
+
+   // void Show();
+
+    ~Body();
+}
+
+class Car {
+
+    char brand[255]={};
+public:
+    Car():Engine(),Body(),Color(),brand{"Неизвестно"}{};
+    explicit Car(const char*,type,double,int,int,int,int,int,const char*);
+
+    char* GetBrand();
+    void SetBrand(const char*);
+
+    //void Show();
+
+
+    ~Car();
+}
+@enduml

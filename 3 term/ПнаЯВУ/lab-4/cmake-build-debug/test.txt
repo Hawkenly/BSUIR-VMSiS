@@ -1,0 +1,24 @@
+Type: hybrid
+Volume: 3.70
+Power: 1400
+Amount of doors: 4
+Size: 3.50 x 2.20 x 1.50
+Color: Blue
+Brand: Ferrari
+----------
+Type: diesel
+Volume: 3.40
+Power: 700
+Amount of doors: 4
+Size: 5.00 x 2.00 x 2.00
+Color: Green
+Brand: Audi
+----------
+Type: diesel
+Volume: 4.00
+Power: 1500
+Amount of doors: 2
+Size: 4.00 x 2.10 x 2.10
+Color: Yellow
+Brand: Lamborgini
+----------
